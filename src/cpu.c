@@ -11,6 +11,7 @@
  */
 
 #include "cpu.h"
+#include "stm32f4xx_hal.h"
 
  /**
   * PLL_VCO		= HSE * (PLLN / PLLM)
@@ -25,93 +26,72 @@
 #define	CPU_RCC_CLK_PLLP			2U
 #define	CPU_RCC_CLK_PLLQ			7U
 
+ /**
+  * @brief	Initial CPU early.
+  * 		This function is called after reset and before initial data section.
+  *
+  * @note	Usually set CPU to highest frequency for fastest data initialization.
+  */
  void
- CPU_SystemReset(void)
+ CPU_InitEarly(void)
  {
-	  /* FPU settings ------------------------------------------------------------*/
-	  #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-	    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
-	  #endif
-	  /* Reset the RCC clock configuration to the default reset state ------------*/
-	  /* Set HSION bit */
-	  RCC->CR |= (cpu_data)0x00000001;
+	  // Set clock to highest frequency and have the rest of the initializations run faster.
+	  SystemInit();
 
-	  /* Reset CFGR register */
-	  RCC->CFGR = 0x00000000;
-
-	  /* Reset HSEON, CSSON and PLLON bits */
-	  RCC->CR &= (cpu_data)0xFEF6FFFF;
-
-	  /* Reset PLLCFGR register */
-	  RCC->PLLCFGR = 0x24003010;
-
-	  /* Reset HSEBYP bit */
-	  RCC->CR &= (cpu_data)0xFFFBFFFF;
-
-	  /* Disable all interrupts */
-	  RCC->CIR = 0x00000000;
-
-	  /* Configure the Vector Table location add offset address ------------------*/
-	  SCB->VTOR = FLASH_BASE; /* Vector Table Relocation in Internal FLASH */
+	  CPU_ClockInit();
  }
 
+ /**
+  * @brief	Initial CPU.
+  * 		This function is called after initial data section.
+  */
+ void
+ CPU_Init(void)
+ {
+	 /* Update System Core Clock variable according to Clock Register Values */
+	 SystemCoreClockUpdate();
+ }
+
+ /**
+  * @brief	Initial CPU Clock.
+  */
  void
  CPU_ClockInit(void)
  {
+	  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+	  RCC_OscInitTypeDef RCC_OscInitStruct;
 
-	 /* Disable the HSE. */
-	 RCC->CR &= ~(0x00010000);
+	  // Enable Power Control clock
+	  __PWR_CLK_ENABLE();
 
-	 /* Wait till HSE is ready */
-	 while((RCC->CR & 0x00020000) != 0);
+	  // The voltage scaling allows optimizing the power consumption when the
+	  // device is clocked below the maximum system frequency, to update the
+	  // voltage scaling value regarding system frequency refer to product
+	  // datasheet.
+	  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-	 /* Disable the main PLL. */
-	 RCC->CR &= ~(0x01000000);
+	  // Enable HSE Oscillator and activate PLL with HSE as source
+	  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+	  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+	  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 
-	 /* Wait till PLL is ready */
-	 while((RCC->CR & 0x02000000) != 0);
+	  // This assumes the HSE_VALUE is a multiple of 1MHz. If this is not
+	  // your case, you have to recompute these PLL constants.
+	  RCC_OscInitStruct.PLL.PLLM = (HSE_VALUE/1000000u);
+	  RCC_OscInitStruct.PLL.PLLN = 336;
+	  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	  RCC_OscInitStruct.PLL.PLLQ = 7;
+	  HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-	 /**
-	  * Configure the main PLL clock source, multiplication and division factors.
-	  */
-	 /* Set PLLM bit0-5*/
-	 RCC->PLLCFGR &= ~(0x3F);
-	 RCC->PLLCFGR |= (CPU_RCC_CLK_PLLM);
-
-	 /* Set PLLN bit6-14 */
-	 RCC->PLLCFGR &= ~(0x1FF << 6);
-	 RCC->PLLCFGR |= (CPU_RCC_CLK_PLLN << 6);
-
-	 /* Set PLLP bit16-17 */
-	 RCC->PLLCFGR &= ~(0x3 << 16);
-	 RCC->PLLCFGR |= (CPU_RCC_CLK_PLLP << 16);
-
-	 /* Set PLLQ bit24-27 */
-	 RCC->PLLCFGR &= ~(0xF << 24);
-	 RCC->PLLCFGR |= (CPU_RCC_CLK_PLLQ << 24);
-
-	 /* Set PLL Source bit22 to 1 (HSE) */
-	 RCC->PLLCFGR |= (1 << 22);
-
-	 /* Enable the main PLL. */
-	 RCC->CR |= (0x01000000);
-
-	 /* Wait till PLL is ready */
-	 while((RCC->CR & 0x02000000) == 0);
- }
-
- extern void
- __attribute__((noreturn,weak))
- _start (void);
-
- void
- CPU_Reset(void)
- {
-	 _start();
- }
-
- void ISR_Reset_Handler(void)
- {
- 	CPU_Reset();
+	  // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+	  // clocks dividers
+	  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK
+	      | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+	  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+	  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+	  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
  }
 

@@ -6,6 +6,7 @@
 // ----------------------------------------------------------------------------
 
 #include "cmsis_device.h"
+#include "cpu.h"
 
 // ----------------------------------------------------------------------------
 
@@ -32,7 +33,7 @@ void
 __attribute__((weak))
 __initialize_hardware_early(void)
 {
-  // Call the CSMSIS system initialisation routine.
+  // Initial CPU
   SystemInit();
 
   // The current version of SystemInit() leaves the value of the clock
@@ -71,6 +72,9 @@ void
 __attribute__((weak))
 __initialize_hardware(void)
 {
+	// Initial Clock Frequency.
+	//CPU_ClockInit();
+
   // Call the CSMSIS system clock routine to store the clock frequency
   // in the SystemCoreClock global RAM location.
   SystemCoreClockUpdate();
