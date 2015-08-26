@@ -15,17 +15,6 @@
 
 #if (HAL_RCC_ENABLED == HAL_ENABLED)
 
-#define	HAL_SCB_REG		SCB			/*!< Reset Clock Control Register */
-#define	HAL_FLASH_REG	FLASH		/*!< Reset Clock Control Register */
-
-#define	HAL_RCC_HSE_ON_BIT		16
-#define	HAL_RCC_PLL_ON_BIT		24
-#define	HAL_RCC_HSE_BYP_ON_BIT	18
-#define	HAL_RCC_CSS_ON_BIT		19
-
-#define	HAL_RCC_HSE_RDY_BIT		17
-#define	HAL_RCC_PLL_RDY_BIT		25
-
  /**
   * PLL_VCO		= HSE * (PLLN / PLLM)
   * SYSCLK		= PLL_CVO / PLLP

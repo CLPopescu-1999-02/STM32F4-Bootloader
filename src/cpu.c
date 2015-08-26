@@ -14,19 +14,6 @@
 #include "hal/hal.h"
 
  /**
-  * PLL_VCO		= HSE * (PLLN / PLLM)
-  * SYSCLK		= PLL_CVO / PLLP
-  * USB_OTG_CLK	= PLL_CVO / PLLQ
-  *
-  * Using max frequency for System Clock at 168Mz at HSE at 8MHz
-  * and 48MHz for USB OTG/SDIO
-  */
-#define	CPU_RCC_CLK_PLLM			8U
-#define	CPU_RCC_CLK_PLLN			336U
-#define	CPU_RCC_CLK_PLLP			2U
-#define	CPU_RCC_CLK_PLLQ			7U
-
- /**
   * @brief	Initial CPU early.
   * 		This function is called after reset and before initial data section.
   *
@@ -50,13 +37,5 @@
  {
 	 /* Update System Core Clock variable according to Clock Register Values */
 	 HAL_RCC_Update();
- }
-
- /**
-  * @brief	Initial CPU Clock.
-  */
- void
- CPU_ClockInit(void)
- {
  }
 

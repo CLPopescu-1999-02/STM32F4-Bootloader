@@ -12,8 +12,6 @@
 
 #include "hal/hal.h"
 
-hal_gpio_pin_info_t led3;
-
 int
 main(void)
 {
@@ -23,10 +21,6 @@ main(void)
 	// At this stage the system clock should have already been configured
 	// at high speed.
 	trace_printf("System clock: %uHz\n", HAL_RCC_GetSystemClock);
-
-	HAL_GPIO_PinInit(&led3, PD13);
-
-	HAL_GPIO_Set(&led3);
 
 	while(1)
 	{

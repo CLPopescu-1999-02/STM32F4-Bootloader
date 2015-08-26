@@ -79,12 +79,6 @@
  void
  CPU_Init(void);
 
- /**
-  * @brief	Initial CPU Clock.
-  */
- void
- CPU_ClockInit(void);
-
 #ifdef __cplusplus
 }
 #endif
