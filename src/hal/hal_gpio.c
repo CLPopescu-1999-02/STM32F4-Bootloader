@@ -135,7 +135,7 @@ HAL_GPIO_Toggle(hal_gpio_pin_info_t *pp_info)
 hal_gpio_stat_t
 HAL_GPIO_Read(hal_gpio_pin_info_t *pp_info)
 {
-	return (HAL_GPIO_REG(pp_info->port_addr)->IDR & (HAL_GPIO_STAT_SET << pp_info->pin_no) != HAL_GPIO_STAT_RESET ?
+	return ((HAL_GPIO_REG(pp_info->port_addr)->IDR & (HAL_GPIO_STAT_SET << pp_info->pin_no)) != HAL_GPIO_STAT_RESET ?
 			HAL_GPIO_STAT_SET : HAL_GPIO_STAT_RESET);
 }
 

@@ -291,7 +291,10 @@
  CPU_INL_FUNC
  cpu_data CPU_CTZ(register cpu_data data)
  {
-	  __asm volatile ("CLZ %0, %0"  : "+r" (data) );
+	  __asm volatile (
+			  "RBIT %0, %0	\n"
+			  "CLZ %0, %0	\n"
+			  : "+r" (data) );
 
 	  return(data);
  }
