@@ -17,6 +17,9 @@
  extern "C" {
 #endif
 
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
  /*
   * ************************************************************************************************
@@ -51,6 +54,7 @@
   */
  typedef			cpu_reg32	cpu_reg;
  typedef			cpu_uint32	cpu_data;
+ typedef  volatile  cpu_uint32* cpu_addr;
 
 #define ISR_VECTOR_TABLE_EN		1U
  /*

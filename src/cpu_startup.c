@@ -26,6 +26,7 @@
  * @name	Linker define entries.
  * @{
  */
+
 #define	__SIDATA__					_sidata						/*!< Begin address for the initialization from ROM */
 #define	__SDATA__					_sdata						/*!< Begin address for the initialization in RAM  */
 #define	__EDATA__					_edata						/*!< End address for the initialization in RAM  */

@@ -134,7 +134,7 @@
   * @param [in]    control  Control Register value to set
   */
  CPU_INL_FUNC
- void void CPU_SetCONTROL(register cpu_data control)
+ void CPU_SetCONTROL(register cpu_data control)
  {
  	__asm volatile ("MSR control, %0" : : "r" (control) );
  }
@@ -266,6 +266,34 @@
  void CPU_SetPRIMASK(register cpu_data priMask)
  {
  	__asm volatile ("MSR primask, %0" : : "r" (priMask) );
+ }
+
+ /**
+  * @brief	Set Priority Mask Register (PRIMASK).
+  * 		This function assigns the given value to the Priority Mask Register (PRIMASK).
+  *
+  * @param [in]    priMask  Priority Mask value
+  */
+ CPU_INL_FUNC
+ void CPU_BX(register cpu_data addr)
+ {
+ 	__asm volatile ("BX %0" : : "r" (addr) );
+ }
+
+ CPU_INL_FUNC
+ cpu_data CPU_CLZ(register cpu_data data)
+ {
+	  __asm volatile ("CLZ %0, %0"  : "+r" (data) );
+
+	  return(data);
+ }
+
+ CPU_INL_FUNC
+ cpu_data CPU_CTZ(register cpu_data data)
+ {
+	  __asm volatile ("CLZ %0, %0"  : "+r" (data) );
+
+	  return(data);
  }
 
 #ifdef __cplusplus
