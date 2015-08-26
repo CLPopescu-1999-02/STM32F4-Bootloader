@@ -233,6 +233,12 @@
 	 HAL_GPIO_AF15,
  } hal_gpio_af_t;
 
+ typedef enum
+ {
+	 HAL_GPIO_STAT_RESET	= 0,
+	 HAL_GPIO_STAT_SET		= 1,
+ } hal_gpio_stat_t;
+
  typedef struct
  {
 	 hal_gpio_mode_t		mode;
@@ -282,7 +288,7 @@
   * GPIO Pin Functions
   *********************************************************************************/
  void
- HAL_GPIO_PinInit(hal_gpio_pin_info_t *pp_info, hal_gpio_pin_t p_pin);
+ HAL_GPIO_Init(hal_gpio_pin_info_t *pp_info, hal_gpio_pin_t p_pin);
  void
  HAL_GPIO_ClkEn(hal_gpio_pin_info_t *pp_info);
 
@@ -305,6 +311,8 @@
  HAL_GPIO_Reset(hal_gpio_pin_info_t *pp_info);
  void
  HAL_GPIO_Toggle(hal_gpio_pin_info_t *pp_info);
+ hal_gpio_stat_t
+ HAL_GPIO_Read(hal_gpio_pin_info_t *pp_info);
 
 
 #ifdef __cplusplus
